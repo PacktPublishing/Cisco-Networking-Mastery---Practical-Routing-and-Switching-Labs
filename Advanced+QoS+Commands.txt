@@ -1,0 +1,126 @@
+! ACL for Voice (UDP 5060 for SIP, UDP 16384-32767 for RTP)
+
+R1(config)# ip access-list extended VOICE-TRAFFIC
+
+R1(config-ext-nacl)# permit udp any any eq 5060
+
+R1(config-ext-nacl)# permit udp any any range 16384 32767
+
+! ACL for Video (RTP-based Video Conferencing)
+
+R1(config)# ip access-list extended VIDEO-TRAFFIC
+
+R1(config-ext-nacl)# permit udp any any range 16384 32767
+
+! ACL for Critical Business Apps (Example: TCP port 1521 for Oracle DB, 1433 for MS SQL)
+
+R1(config)# ip access-list extended BUSINESS-APPS
+
+R1(config-ext-nacl)# permit tcp any any eq 1521
+
+R1(config-ext-nacl)# permit tcp any any eq 1433
+
+! ACL for Web Browsing (HTTP/HTTPS)
+
+R1(config)# ip access-list extended WEB-TRAFFIC
+
+R1(config-ext-nacl)# permit tcp any any eq 80
+
+R1(config-ext-nacl)# permit tcp any any eq 443
+
+! ACL for Bulk Data Transfers (FTP – ports 20/21, large file transfers)
+
+R1(config)# ip access-list extended BULK-DATA
+
+R1(config-ext-nacl)# permit tcp any any eq 20
+
+R1(config-ext-nacl)# permit tcp any any eq 21
+
+! ACL for ICMP
+
+R1(config)# ip access-list extended ICMP-TRAFFIC
+
+R1(config-ext-nacl)# permit tcp any any
+
+R1(config-ext-nacl)# permit icmp any any
+
+! Class map for Voice Traffic
+
+R1(config)# class-map match-any VOICE-CLASS
+
+R1(config-cmap)# match access-group name VOICE-TRAFFIC
+
+! Class map for Video Traffic
+
+R1(config)# class-map match-any VIDEO-CLASS
+
+R1(config-cmap)# match access-group name VIDEO-TRAFFIC
+
+! Class map for Critical Business Apps
+
+R1(config)# class-map match-any BUSINESS-CLASS
+
+R1(config-cmap)# match access-group name BUSINESS-APPS
+
+! Class map for Web Traffic
+
+R1(config)# class-map match-any WEB-CLASS
+
+R1(config-cmap)# match access-group name WEB-TRAFFIC
+
+! Class map for Bulk Data Traffic
+
+R1(config)# class-map match-any BULK-CLASS
+
+R1(config-cmap)# match access-group name BULK-DATA
+
+! Class map for ICMP
+
+R1(config)# class-map match-any ICMP-TRAFFIC
+
+R1(config-cmap)# match access-group name ICMP-TRAFFIC
+
+! Mark Voice Traffic with DSCP EF (46 - Expedited Forwarding)
+
+R1(config)# policy-map MARK-TRAFFIC
+
+R1(config-pmap)# class VOICE-CLASS
+
+R1(config-pmap-c)# set dscp ef
+
+! Mark Video Traffic with DSCP AF41 (34 - Assured Forwarding)
+
+R1(config-pmap)# class VIDEO-CLASS
+
+R1(config-pmap-c)# set dscp af41
+
+! Mark Business Apps Traffic with DSCP AF31 (26 - Assured Forwarding)
+
+R1(config-pmap)# class BUSINESS-CLASS
+
+R1(config-pmap-c)# set dscp af31
+
+! Mark Web Traffic with DSCP AF21 (18 - Assured Forwarding)
+
+R1(config-pmap)# class WEB-CLASS
+
+R1(config-pmap-c)# set dscp af21
+
+! Mark Bulk Data Traffic with DSCP CS1 (8 - Class Selector)
+
+R1(config-pmap)# class BULK-CLASS
+
+R1(config-pmap-c)# set dscp cs1
+
+! Mark ICMP Traffic with DSCP CS1 (8 - Class Selector)
+
+R1(config-pmap)# class ICMP-TRAFFIC
+
+R1(config-pmap-c)# set dscp cs1
+
+! Applying QoS policy on the outgoing interface
+
+R1(config)# interface GigabitEthernet0/1
+
+R1(config-if)# service-policy output QOS-POLICY
+

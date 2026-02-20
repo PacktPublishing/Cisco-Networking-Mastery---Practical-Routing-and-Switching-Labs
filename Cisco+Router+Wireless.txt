@@ -1,0 +1,17 @@
+ip dhcp excluded-address 1.1.1.1
+!
+ip dhcp pool dhcp_pool
+ network 1.1.1.0 255.255.255.0
+ default-router 1.1.1.1
+!
+dot11 ssid test
+  authentication open
+  authentication key-management wpa
+  wpa-psk ascii 0 12345678
+  guest-mode
+!
+interface Dot11Radio0/3/0
+ ip address 1.1.1.1 255.255.255.0
+ encryption mode ciphers aes-ccm
+ speed 12.0 18.0 24.0 36.0 48.0 54.0 6.0 9.0 basic-1.0 basic-11.0 basic-2.0 basic-5.5 
+ ssid test
